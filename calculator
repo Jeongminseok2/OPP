@@ -1,0 +1,87 @@
+#include <iostream>
+#include <string>
+#include <stack>
+#include <sstream>
+
+using namespace std;
+
+struct oper {
+	int rank;
+	string o;
+};
+
+stack<int> num;
+stack<oper> op;
+
+void calc() {
+	int a, b, result;
+	b = num.top();
+	num.pop();
+	a = num.top();
+	num.pop();
+	string oper = op.top().o;
+
+	if (oper == "*")
+		result = a * b;
+	else if (oper == "/")
+		result = a / b;
+	else if (oper == "+")
+		result = a + b;
+	else if (oper == "-")
+		result = a - b;
+
+	num.push(result);
+}
+
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+
+	string input;
+	stringstream ss(input);
+
+	std::cout << "수식을 입력하세요. : ";
+	std::cin >> input;
+
+	string token;
+
+	while (ss >> token) {
+		if (token == "(") {
+			op.push({ 0, token });
+		}
+		else if (token == ")") {
+			while (op.top().o != "(") {
+				calc();
+			}
+			op.pop();
+		}
+		else if (token == "*" || token == "/" || token == "+" || token == "-") {
+			int prior;
+
+			if (token == "*")
+				prior = 2;
+			else if (token == "/")
+				prior = 2;
+			else if (token == "+")
+				prior = 1;
+			else if (token == "-")
+				prior = 1;
+
+			while (!op.empty() && prior <= op.top().rank) {
+				calc();
+			}
+			op.push({ prior, token });
+		}
+		else {
+			num.push(stoi(token));
+		}
+	}
+
+	while (!op.empty())
+		calc();
+
+	std::cout << num.top();
+
+	return 0;
+}
